@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     res.json(todos)
   } catch (error) {
     console.log(error)
-    res.status(500).json({ message: 'Ive got nothing to do' })
+    res.status(500).json({ message: 'Shrek has nothing to do' })
   }
 })
 
@@ -22,7 +22,7 @@ router.patch('/:id', async (req, res) => {
     res.sendStatus(204)
   } catch (error) {
     console.log(error)
-    res.status(500).json({ message: 'Ive still got nothing to do' })
+    res.status(500).json({ message: 'Shrek still has nothing to do' })
   }
 })
 

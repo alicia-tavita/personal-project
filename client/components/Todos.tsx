@@ -1,62 +1,69 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import { getTodos } from './apiClient'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Todo } from '../../models/todo'
+import { completeTodo, fetchTodos } from './apiClient'
 
-export default function Todos() {
+function Todos() {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['todo'],
-    queryFn: getTodos,
+    queryKey: ['todos'],
+    queryFn: async () => await fetchTodos(), // changed to fetchTodos
   })
 
-  const [todos, setTodos] = useState({
-    todo: ['clean swamp', 'beat up donkey', 'scare humans'],
-    completed: ['move boulder', 'eat eyeballs'],
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: completeTodo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] })
+    },
   })
-  function moveTodo(item: string) {
-    setTodos({
-      todo: [...todos.todo].filter((el) => el !== item),
-      completed: [...todos.completed, item].sort(),
-    })
-  }
-  function moveCompleted(item: string) {
-    setTodos({
-      todo: [...todos.todo, item].sort(),
-      completed: [...todos.completed].filter((el) => el !== item),
-    })
+
+  async function handleTodoCompletion(el: Todo) {
+    const todoId = el.id
+    mutation.mutate(todoId)
   }
 
-  // if (isError) {
-  // }
+  if (isError) {
+    console.log(error, 'error')
+  }
 
-  // if (isLoading) {
-  // }
+  if (isLoading) {
+    console.log('loading')
+  }
 
-  // if (data)
-  return (
-    <>
-      <div className="todoContainer">
-        <h1>Shrek&aposs Todos</h1>
-        <ul>
-          {/* map in here over data */}
-          {/* Button to add to completed? */}
-          {/* Input type = checkbox */}
-          {todos.todo.map((el) => (
-            <li key={el}>
-              {el}
-              <button onClick={() => moveTodo(el)}>click</button>
-            </li>
-          ))}
-        </ul>
-        <ul>
-          {todos.completed.map((el) => (
-            <li key={el}>
-              {el}
-              <button onClick={() => moveCompleted(el)}>click</button>
-            </li>
-          ))}
-        </ul>
-        {/* <Completed /> */}
-      </div>
-    </>
-  )
+  if (data)
+    return (
+      <>
+        <div className="todoContainer">
+          <h2>Backlog</h2>
+          <ul>
+            {data.map(
+              (el: Todo) =>
+                el.completed === 0 && (
+                  <li key={el.id}>
+                    <button onClick={() => handleTodoCompletion(el)}></button>
+                    <p>{el.task}</p>
+                    <p>{el.description}</p>
+                    <p>{el.user_id}</p>
+                  </li>
+                ),
+            )}
+          </ul>
+          <h2>Completed</h2>
+          <ul>
+            {data.map(
+              (el: Todo) =>
+                el.completed === 1 && (
+                  <li key={el.id}>
+                    <button onClick={() => handleTodoCompletion(el)}>✔</button>
+                    <p>{el.task}</p>
+                    <p>{el.description}</p>
+                    <p>{el.user_id}</p>
+                  </li>
+                ),
+            )}
+          </ul>
+        </div>
+      </>
+    )
 }
+
+export default Todos

@@ -12,13 +12,12 @@ export async function getAllToDos(): Promise<Todo[]> {
       'completed',
     )
 }
-
 export async function updateToDos(id: number) {
   const completed = await connection('todos')
     .where({ id })
     .select('completed')
     .first()
+  console.log('cunt')
   const val = completed.completed ? false : true
-
   await connection('todos').where({ id }).update('completed', val)
 }

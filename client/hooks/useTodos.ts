@@ -6,8 +6,8 @@ import {
 } from '@tanstack/react-query'
 import { getTodos } from '../apis/todos.ts'
 
-export function useTodos() {
-  const query = useQuery({ queryKey: ['todos'], queryFn: getTodos })
+export async function useTodos() {
+  const query = await useQuery({ queryKey: ['todos'], queryFn: getTodos })
   return {
     ...query,
   }
